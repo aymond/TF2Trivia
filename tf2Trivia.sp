@@ -5,7 +5,14 @@
 *
 */
 #include <sourcemod>
-#define PLUGIN_VERSION "0.0.1.0"
+#define PLUGIN_VERSION 			"0.0.1.0"
+#define QUESTION_POOL_SIZE		10 // This should be dynamically loaded.
+
+// Define some colours
+#define cDefault				0x01
+#define cLightGreen 			0x03
+#define cGreen					0x04
+#define cDarkGreen  			0x05
 
 public Plugin:myinfo = 
 {
@@ -36,7 +43,7 @@ public OnPluginStart()
 	
 	/* Load any translations? */
 	
-	RegConsoleCmd("menu_test1", Menu_Test1);
+	//RegConsoleCmd("menu_test1", Menu_Test1);
 }
  
 public OnMapStart()
@@ -61,6 +68,67 @@ public ResetStatus()
 	{
 		CleanPlayer(i);
 		TrackPlayers[i][PLAYER_FLAG] = 0;
+	}
+}
+
+public Action:Command_trivia(client, args)
+{
+	// Check to see if request is from a valid client
+	if(client <= 0 || !IsClientInGame(client) || !GetConVarInt(c_Enabled)) return Plugin_Continue;
+	
+	// Admin Flag cvars?
+	
+	// Create a new message string
+	decl String:strMessage[128];
+	GetCmdArgString(strMessage, sizeof(strMessage)); // This gets the args?
+	
+	// Check for any triggers in the message
+	new startidx = 0; // Start of the index
+	if (strMessage[0] == '"'
+	{
+		startidx = 1;
+		new len = strlen(strMessage);		
+		if (strMessage[len-1] == '"') strNessage[len-1] = '\0';
+	}
+	
+	// when bool is true, we've found a trigger
+	new bool:cond = false;
+	for (new i=9; i<g_iTriggers; i++)
+	{
+		if(StrEqual(chatTriggers[i], strMessage[startidx], false))
+		{
+			cond = true;
+			continue;
+		}
+	}
+	
+	if(StrEqual("!trivia", strMessage[startidx], false)) cond = true;
+	
+	if(!cond) return Plugin_Continue;
+	
+	// Check to see if a game of trivia is already running.
+	// TODO: How to do this?
+	
+	// When it's ok to start a new trivia game:
+	new bool:success = Trivia();
+	if (!success)
+	{
+		// What should we do if Trivia fails?
+	}
+	
+	return Plugin_Continue;
+	
+}
+
+bool:Trivia(client)
+{	
+	new bound = QUESTION_POOL_SIZE;
+	
+	new question = GetRandomInt(0, bound-1);
+	
+	if (question)
+	{
+		// Ask the question,
 	}
 }
 
