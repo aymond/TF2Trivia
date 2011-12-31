@@ -8,7 +8,8 @@
 */
 #include <sourcemod>
 #define VERSION 			"0.0.1.0"
-#define QUESTION_POOL_SIZE		10 // This should be dynamically loaded based on an external config/question file.
+#define QUESTION_POOL_SIZE	10 // This should be dynamically loaded based on an external config/question file.
+#define MAX_QUESTIONS		100
 
 // Define some colours
 #define cDefault				0x01
@@ -16,7 +17,8 @@
 #define cGreen					0x04
 #define cDarkGreen  			0x05
 
-new Handle:QuestionPool = INVALID_HANDLE;
+new Handle:QuestionConf = INVALID_HANDLE;
+new String:question[MAX_QUESTIONS][64];
 
 public Plugin:myinfo = 
 {
@@ -49,13 +51,22 @@ public OnPluginStart()
 	/* Load any translations? */
 	
 	/* Load the question pool */
+	// In Progress. Not sure what the ,32 means. I think that the questions should be loaded into Question.
 	decl String:qPool[PLATFORM_MAX_PATH];
 	BuildPath(Path_SM, qPool, sizeof(qPool), "gamedata/tf2trivia.questionpool.txt");
 	
-	QuestionPool = CreateKeyValues("QuestionPool");
-	if (FileToKeyValues(QuestionPool, qPool))
+	QuestionConf = CreateKeyValues("QuestionPool");
+	if (FileToKeyValues(QuestionConf, qPool))
 	{
 		PrintToServer("Successfully loaded tf2trivia.questionpool.txt");
+		KvGotoFirstSubKey(QuestionConf);
+		new i=0;
+		do {
+			KvGetSectionName(QuestionConf, question[KvGetNum(QuestionConf, "Question")-1],32);
+			i++;
+		} while (KvGotoNextKey(QuestionConf));
+		
+		KvRewind(QuestionConf);
 	}
 	else {
 		PrintToServer("Failed to load tf2trivia.questionpool.txt");
@@ -114,7 +125,7 @@ public Action:Command_trivia(client, args)
 		}
 	}
 	
-	// when bool is true, we've found a trigger
+	// when bool is true, we've found a trigger. Any of the arguments can be a trigger?
 	new bool:cond = false;
 	for (new i=9; i<g_iTriggers; i++)
 	{
