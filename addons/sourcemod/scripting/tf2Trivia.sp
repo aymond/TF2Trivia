@@ -129,11 +129,6 @@ public Action:Command_trivia(client, args)
 
 bool:Trivia(client)
 {	
-	/**
-	* bound 	- the size of the question pool.
-	* question 	- the question in the pool to ask.
-	* 
-	*/
 	new bound = QUESTION_POOL_SIZE;
 	
 	new question = GetRandomInt(0, bound-1);

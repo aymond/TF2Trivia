@@ -1,0 +1,7 @@
+"Phrases"
+{
+	"TF2 Trivia"
+	{
+		"en"		"TF2 Trivia:"
+	}
+}
