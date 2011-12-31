@@ -1,0 +1,13 @@
+"QuestionPool"
+{
+	
+	"1"
+	{
+		"Question"	"What colour is made when you mix blue and yellow?"
+		"Answer1"	"Green"
+		"Answer2"	"Red"
+		"Answer3"	"Brown"
+		"Answer4"	"Blue"
+	}
+	
+}

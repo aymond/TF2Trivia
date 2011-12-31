@@ -4,7 +4,7 @@
 * Date: 25.12.2011
 *
 * This is my first mod. Please tolerate excessive commenting ;)
-* ! is public trigger. / is silent trigger
+* 
 */
 #include <sourcemod>
 #define VERSION 			"0.0.1.0"
@@ -15,6 +15,8 @@
 #define cLightGreen 			0x03
 #define cGreen					0x04
 #define cDarkGreen  			0x05
+
+new Handle:QuestionPool = INVALID_HANDLE;
 
 public Plugin:myinfo = 
 {
@@ -45,6 +47,20 @@ public OnPluginStart()
 	ResetStatus();
 	
 	/* Load any translations? */
+	
+	/* Load the question pool */
+	decl String:qPool[PLATFORM_MAX_PATH];
+	BuildPath(Path_SM, qPool, sizeof(qPool), "gamedata/tf2trivia.questionpool.txt");
+	
+	QuestionPool = CreateKeyValues("QuestionPool");
+	if (FileToKeyValues(QuestionPool, qPool))
+	{
+		PrintToServer("Successfully loaded tf2trivia.questionpool.txt");
+	}
+	else {
+		PrintToServer("Failed to load tf2trivia.questionpool.txt");
+	}
+	
 	
 	//RegConsoleCmd("menu_test1", Menu_Test1);
 }
@@ -139,8 +155,20 @@ bool:Trivia(client)
 	new question = GetRandomInt(0, bound-1);
 	
 	if (question)
-	{
+	{		
 		// Ask the question,
+		// Find the question in the question pool based on the random number.
+		/* Our question pool is loaded OnPluginStart. Questions are titled as a number.  */
+		// Randomize the answer order. 1234 1243 1324 1342 1423 1432 etc where the number is the order of the answers.
+		
+		// Display the menu that contains the question as the header, and the answers as the menu text.
+		// Answer "1" is always the correct answer. So if the menu item is this answer, then the player wins.
+		// Correct answer: Give player a buff?		
+		// Future: Allow rounds of (n) questions.
+		// Future: Keep track of score across a round.
+		// Future: Keep track of Red vs Blue
+		// Future: Export to log and keep stats.
+		// 
 	}
 }
 
