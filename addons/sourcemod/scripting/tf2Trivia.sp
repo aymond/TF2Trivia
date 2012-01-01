@@ -10,6 +10,8 @@
 #define VERSION 			"0.0.1.0"
 #define QUESTION_POOL_SIZE	10 // This should be dynamically loaded based on an external config/question file.
 #define MAX_QUESTIONS		100
+#define MAX_CHAT_TRIGGERS		15
+#define MAX_CHAT_TRIGGER_LENGTH 15
 
 // Define some colours
 #define cDefault				0x01
@@ -19,6 +21,14 @@
 
 new Handle:QuestionConf = INVALID_HANDLE;
 new String:question[MAX_QUESTIONS][64];
+new Handle:c_Enabled = INVALID_HANDLE;
+new Handle:c_TimeLimit = INVALID_HANDLE;
+new Handle:c_EDuration = INVALID_HANDLE;
+new Handle:c_QDuration = INVALID_HANDLE;
+new Handle:c_trigger = INVALID_HANDLE;
+
+new String:chatTriggers[MAX_CHAT_TRIGGERS][MAX_CHAT_TRIGGER_LENGTH];
+new g_iTriggers = 0;
 
 public Plugin:myinfo = 
 {
@@ -84,10 +94,10 @@ public OnMapStart()
 public Action:Event_RoundStart(Handle:event, const String:name[], bool:dontBroadcast)
 {
 	if (GetConVarInt(c_Enabled))
-		printToChatAll("%c[TF2Trivia]%c%T", cGreen, cDefault, "Announcement_Message", LANG_SERVER, cGreen, cDefault);
+		PrintToChatAll("%c[TF2Trivia]%c%T", cGreen, cDefault, "Announcement_Message", LANG_SERVER, cGreen, cDefault);
 }
 
-public Parse_Chat_Triggers(const String:strStriggers[])
+public Parse_Chat_Triggers(const String:strTriggers[])
 {
 	g_iTriggers = ExplodeString(strTriggers, ",", chatTriggers, MAX_CHAT_TRIGGERS, MAX_CHAT_TRIGGER_LENGTH);
 }
@@ -96,8 +106,8 @@ public ResetStatus()
 {
 	for (new i=0;i<MAXPLAYERS+1;i++)
 	{
-		CleanPlayer(i);
-		TrackPlayers[i][PLAYER_FLAG] = 0;
+		//CleanPlayer(i);
+		//TrackPlayers[i][PLAYER_FLAG] = 0;
 	}
 }
 
@@ -114,7 +124,7 @@ public Action:Command_trivia(client, args)
 	
 	// Check for any triggers in the message
 	new startidx = 0; // Start of the index. Words are delimited by space automagically.
-	if (strMessage[0] == '"'
+	if (strMessage[0] == '"')
 	{
 		// Strip the ending quote if there is one
 		startidx = 1;
@@ -144,7 +154,7 @@ public Action:Command_trivia(client, args)
 	// TODO: How to do this? Perhaps set a variable to true if running?
 	
 	// When it's ok to start a new trivia game:
-	new bool:success = Trivia();
+	new bool:success = Trivia(client);
 	if (!success)
 	{
 		// What should we do if Trivia fails?
@@ -163,9 +173,9 @@ bool:Trivia(client)
 	*/
 	new bound = QUESTION_POOL_SIZE;
 	
-	new question = GetRandomInt(0, bound-1);
+	new q_random = GetRandomInt(0, bound-1);
 	
-	if (question)
+	if (q_random)
 	{		
 		// Ask the question,
 		// Find the question in the question pool based on the random number.
@@ -181,6 +191,7 @@ bool:Trivia(client)
 		// Future: Export to log and keep stats.
 		// 
 	}
+	return true;
 }
 
 public MenuHandler1(Handle:menu, MenuAction:action, param1, param2)
